@@ -8,13 +8,19 @@
 ## Macros
 ##### NULL: NULL pointer를 나타내는 상수값.  
 ##### _IOFBF, _IOLBF, IONBF: setvbuf 함수에서 버퍼 모드를 지정하는 데에 쓰이는 상수 값.
+*  _IOFBF: full buffering 방식으로, stream에 쓰여질 데이터를 buffer에 저장했다가, buffer가 차면 쓰도록 하는 방식이다.
+*  _IOLBF: 버퍼에 개행 문자(\n)가 입력될 때마다 버퍼에 있는 데이터를 stream에 쓰는 방식.
+*  _IONBF: unbuffered 방식으로, 버퍼를 거치지 않고 바로바로 stream에 데이터를 쓰는 방식.
 ##### BUFSIZ: setbuf 함수를 사용해 버퍼를 할당할 때, 해당 버퍼의 최소한의 바이트 크기를 지정하는 상수 값.
 ##### EOF: File의 끝에 도달했음을 의미하는 음의 정수 값.
 ##### FOPEN_MAX: 시스템에서 동시에 열 수 있도록 보장된 최대 파일의 수를 나타내는 정수 값.
 ##### FILENAME_MAX: file_name으로 적합한 최대의 문자열 길이를 나타내는 정수 값.
-##### L_tmpnam:
-##### SEEK_CUR, SEEK_END, SEEK_SET: fseek 함수를 통해 파일 내 특정 fpos를 찾을 때 인자로 주는 값들로, 각각 현재 fpos 위치, file 끝부분의 위치, 파일 시작지점의 위치 값을 갖는다. 
-##### TMP_MAX: tmp
+##### L_tmpnam: tmpnam 함수 결과로 생성되는 파일 이름의 길이. 
+##### SEEK_CUR, SEEK_END, SEEK_SET: fseek 함수를 통해 파일 내 특정 fpos를 찾을 때 인자로 주는 값들.
+*  SEEK_CUR: 현재 fpos 위치
+*  SEEK_SET: file 시작 지점의 위치
+*  SEEK_END: 파일 끝 지점의 위치
+##### TMP_MAX: tmpnam으로 생성할 수 있는 임시 파일 이름의 최대 수.
 ##### srderr, srdin, stdout: 기본 error, 기본 input, 기본 output stream의 FILE* 값들.
 -----------------------------------------
 
@@ -51,6 +57,13 @@ filename에 해당하는 파일을 삭제하는 함수.
 #### `int fflush(FILE* stream)`
 stream과 연관된 버퍼를 비우게 하는 함수. 만약 stream 값이 NULL이면 열린 모든 stream을 비운다. 
 ##### 버퍼를 삭제했다면 0을, 그렇지 않으면 0이 아닌 errno를 반환.
+#### `FILE* tmpfile(void)`
+읽고 쓸 수 있는 임시 binary 파일(= "w+b")을 생성하는 함수이다. 
+##### 생성에 성공했다면 해당 FILE pointer을, 그렇지 않으면 NULL을 반환.
+#### `char* tmpnam(char* str)`
+기존 파일과 겹치지 않는 임시 파일명을 생성하여 str에 저장하는 함수. 단 str은 최소 L_tmpnam의 길이를 갖는 배열이여야 한다.
+> str이 NULL일 경우 내부 static buffer에 결과를 저장. 이는 다음 tmpnam 호출 시 사라지게 됨.
+##### 생성에 성공했다면 해당 임시 이름의 pointer 값을, 그렇지 않으면 NULL을 반환.
 
 ---------------------------------------
 ### FILE Flag Functions
@@ -80,6 +93,48 @@ whence 값은 stdio.h Macro인 SEEK_SET, SEEK_CUR, SEEK_END 값을 사용한다.
 FILE stream의 pos 값을 가져오는 함수. 
 > fgetpos와 fsetpos를 같이 사용하듯이, ftell과 fseek도 같이 사용된다(둘 다 long int 값). 
 ##### pos를 가져오는 데 성공 시 해당 값을, 실패 시 0이 아닌 errno를 반환.
+#### `void rewind(FILE* stream)`
+FILE stream의 pos 값을 file 시작 지점으로 옮기는 함수.  
+
+----------------------------------------
+### FILE get/put function
+
+----------------------------------------
+### FILE print/scan function
+print, scan의 가장 큰 특징은 formatted I/O를 관리하는 함수라는 점이다. 
+#### formatted output
+%[flags][width][precision][length]specifier 형태로 관리하는 output으로, 각 항목은 다음과 같다.
+*  flag: 출력 형태를 조정하는 flag. **+** - 양수 앞에 + 기호를 붙임, " " - 부호가 없으면 한칸 띄어 쓰기, **0** - 수 지정 시 빈 칸에 0 삽입 등.
+*  width: 출력 값의 폭을 지정. 이때 width가 음수면 왼쪽 정렬, 양수면 오른쪽 정렬임.
+*  precision: 데이터의 정밀도 지정. 보통 소수점 n번째까지 표기할때 .n 형식으로 붙여준다. 
+*  length: 데이터의 정확한 크기를 지정. l을 붙이면 long int 또는 wide char이고, L을 붙이면 long double을 지정한다.
+*  specifier: 어떤 type의 데이터인지 나타내는 값. **c** - char, **d** - int, **s** - string, **f** - float, **p** - pointer address 등. 특이 사항으로 **n** 의 경우 출력하는 값은 없고, 인자로 받은 int pointer 위치에 현재까지 쓰여진 문자 bytes 수를 저장한다(보안 취약점). 
+#### `int printf(const char* format, ...)`
+formatted output을 받아 stdout에 출력하는 함수. 
+##### 출력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
+#### `int fprintf(FILE* stream, const char* format, ...)`
+formatted output을 받아 stream에 출력하는 함수. 
+##### 출력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
+#### `int sprintf(char* str, const char* format, ...)`
+formatted output을 받아 str에 저장하는 함수. str 끝에 자동으로 **\0** 을 붙여주기 때문에 1칸의 여유 공간을 둬야 한다.
+##### 저장 성공 시 저장된 문자열의 byte 수(\0 제외)를, 실패 시 음수를 반환. 
+
+#### formatted input
+%[*][width][modifiers]type 형태로 관리하는 input으로, 각 항목은 다음과 같다.
+*  *: 들어온 데이터를 무시하라고 지시. %*d%d, i, j라면 i는 2번째 입력 값을 저장하고, j는 값을 저장하지 못한다. 
+*  width: 읽어들일 최대 문자 수. 단 \0이 들어갈 충분한 공간을 고려해야 한다.
+*  modifier: 입력받는 데이터의 크기를 지정하는 지정자. formatted output의 length와 동일.
+*  type: 입력받을 데이터의 type. 역시 formatted output의 specifier와 동일.
+
+#### `int scanf(const char* format, ...)`
+formatted String을 받아 stdin에 입력하는 함수. 
+##### 입력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
+#### `int fprintf(FILE* stream, const char* format, ...)`
+formatted String을 받아 stream에 출력하는 함수. 
+##### 출력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
+#### `int sprintf(char* str, const char* format, ...)`
+formatted String을 받아 str에 저장하는 함수. str 끝에 자동으로 **\0** 을 붙여주기 때문에 1칸의 여유 공간을 둬야 한다.
+##### 저장 성공 시 저장된 문자열의 byte 수(\0 제외)를, 실패 시 음수를 반환.
 
 ---------------------------------------
 ### FILE read/write Functions
@@ -90,4 +145,15 @@ FILE stream의 pos 값을 가져오는 함수.
 #### `size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)`
 주어진 ptr로부터 size 크기의 데이터 nmemb개를 읽어와 stream의 pos부터 쓰는 함수.<br> pos는 읽어들인 bytes만큼 증가한다.
 ##### 데이터를 쓰는 데 성공 시 쓰인 byte 수(= size * nmemb)를, 실패 시 다른 값을 반환.
+
+---------------------------------------
+### Buffer Management Functions
+#### `void setbuf(FILE* stream, char* buffer)`
+FILE stream의 buffer를 지정하는 함수. 이때 buffer는 BUFSIZ 이상의 크기를 가져야 한다.<br>
+설정한 buffer는 fully buffered로 지정되며, 따라서 블록이 다 채워지지 않아도 스트림을 비우려면 fflush를 사용해야 한다.<br>
+> buffer 자리에 NULL pointer를 넣을 경우 stream은 unbuffered로 설정된다. 즉, 쓰기 작업을 하자마자 바로 파일에 쓰는 방식이기에 fflush가 불필요해진다. 
+#### `void setvbuf(FILE* stream, char* buffer, int mode, size_t size)`
+FILE stream의 buffer를 더 세밀하게 지정하는 함수. size를 통해 버퍼 크기를 지정하며, mode를 통해 버퍼 방식을 지정 가능하다.<br>
+mode는 stdio.h의 Macro인 _IOFBF, _IOLBF, _IONBF를 사용한다. 
+> buffer 자리에 NULL pointer를 넣을 경우 시스템이 동적으로 size만큼의 메모리를 할당 후, buffer로써 사용하게 된다.
 
