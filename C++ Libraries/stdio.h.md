@@ -19,7 +19,7 @@
 -----------------------------------------
 
 ## Functions
-### FILE Functions
+### FILE Management Functions
 #### FILE* fopen(const char* filename, const char* mode)
 _filename_ 과 같은 이름의 file을 여는 함수. mode 값은 file 접근 방식을 지정하는 데 사용한다.<br>
 ##### mode
@@ -36,21 +36,58 @@ _filename_ 과 같은 이름의 file을 여는 함수. mode 값은 file 접근 �
 #### `int fcolose(FILE* stream)`
 stream에 해당하는 file과 연관된 버퍼를 모두 삭제하고 file을 닫는 함수.
 ##### 성공적으로 닫으면 0을, 실패하면 errno를 반환.
-#### `void clearerr(FILE* stream)`
-stream 내의 EOF 표시자와 error 표시자를 모두 초기화한다. 즉, 사전에 error가 발생했더라도 clearerr(stream)을 호출하면 error가 잡히지 않는다.
+#### `FILE* freopen(const char* filename, const char* mode, FILE* stream)`
+stream에 해당하는 file을 닫고, close 성공 여부와 관계 없이 filename에 해당하는 file을 주어진 mode에 맞게 여는 작업. mode는 fopen과 동일.<br> freopen의 의의는 이미 열린 파일 모드를 재설정할 수 있다는 점에 있음(stderr, stdin, stdout조차 재설정 가능).
+##### 만약 파일이 성공적으로 열렸다면 해당 파일의 FILE pointer 값을, 실패했다면 NULL을 반환.
+##### 성공적으로 닫으면 0을, 실패하면 errno를 반환.
+#### `int rename(const char* old_filename, const char* new_filename)`
+old_filename에 해당하는 파일의 이름을 new_filename으로 수정하는 함수. 
+> 열려있는 파일을 rename하고자 할 경우 에러가 발생한다.
+##### 성공적으로 수정하면 0을, 실패하면 errno를 반환.
+#### `int remove(const char* filename)`
+filename에 해당하는 파일을 삭제하는 함수. 
+> fclose 되지 않은 파일을 remove하고자 할 경우 에러가 발생한다.
+##### 성공적으로 삭제하면 0을, 실패하면 errno를 반환.
 #### `int fflush(FILE* stream)`
 stream과 연관된 버퍼를 비우게 하는 함수. 만약 stream 값이 NULL이면 열린 모든 stream을 비운다. 
 ##### 버퍼를 삭제했다면 0을, 그렇지 않으면 0이 아닌 errno를 반환.
 
 ---------------------------------------
-### FILE getter Functions
+### FILE Flag Functions
 #### `int feof(FILE* stream)`
 FILE object 내의 EOF flag가 설정되어 있는지를 반환하는 함수. 
 ##### 설정되어 있다면 0이 아닌 값을, 그렇지 않으면 0을 반환.
 #### `int ferror(FILE* stream)`
 FILE object 내의 error flag가 설정되어 있는지를 반환하는 함수. 
 ##### 설정되어 있다면 0이 아닌 값을, 그렇지 않으면 0을 반환.
+#### `void clearerr(FILE* stream)`
+stream 내의 EOF 표시자와 error 표시자를 모두 초기화한다. 즉, 사전에 error가 발생했더라도 clearerr(stream)을 호출하면 error가 잡히지 않는다.
+
+--------------------------------------
+### FILE pos Functions
 #### `int fgetpos(FILE* stream, fpos_t* pos)`
 FILE stream의 position을 찾아와 인자로 받은 pos 위치에 저장하는 함수. 
 ##### pos를 가져오는 데 성공 시 0을, 실패 시 0이 아닌 errno를 반환.
-##### 설정되어 있다면 0이 아닌 값을, 그렇지 않으면 0을 반환.
+#### `int fsetpos(FILE* stream, fpos_t* pos)`
+FILE stream의 pos 값을 fpos_t pointer pos에 담긴 값으로 설정하는 함수.
+> 일반적으로 pos 값은 이전에 fgetpos로 받아온 값을 이용한다.
+##### pos를 설정하는 데 성공 시 0을, 실패 시 0이 아닌 errno를 반환.
+#### `int fseek(FILE* stream, long int offset, int whence)`
+FILE stream의 pos 값을 조정하는 함수. whence 위치부터 offset만큼 이동시키는 작업을 수행함.<br>
+whence 값은 stdio.h Macro인 SEEK_SET, SEEK_CUR, SEEK_END 값을 사용한다.
+##### pos를 조정하는 데 성공 시 0을, 실패 시 0이 아닌 errno를 반환.
+#### `long int ftell(FILE* stream)`
+FILE stream의 pos 값을 가져오는 함수. 
+> fgetpos와 fsetpos를 같이 사용하듯이, ftell과 fseek도 같이 사용된다(둘 다 long int 값). 
+##### pos를 가져오는 데 성공 시 해당 값을, 실패 시 0이 아닌 errno를 반환.
+
+---------------------------------------
+### FILE read/write Functions
+#### `size_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream)`
+주어진 stream으로부터 size 크기의 데이터 nmemb개를 읽어와 ptr이 가리키는 위치에 저장하는 함수.<br>
+데이터는 Stream의 pos부터 읽어들이며, pos는 읽어들인 bytes만큼 증가한다. 
+##### 데이터를 읽어오는 데 성공 시 읽어들인 byte 수(= size * nmemb)를, 실패 시 다른 값을 반환.
+#### `size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)`
+주어진 ptr로부터 size 크기의 데이터 nmemb개를 읽어와 stream의 pos부터 쓰는 함수.<br> pos는 읽어들인 bytes만큼 증가한다.
+##### 데이터를 쓰는 데 성공 시 쓰인 byte 수(= size * nmemb)를, 실패 시 다른 값을 반환.
+
