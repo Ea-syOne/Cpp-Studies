@@ -127,14 +127,16 @@ formatted output을 받아 str에 저장하는 함수. str 끝에 자동으로 *
 *  type: 입력받을 데이터의 type. 역시 formatted output의 specifier와 동일.
 
 #### `int scanf(const char* format, ...)`
-formatted String을 받아 stdin에 입력하는 함수. 
-##### 입력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
-#### `int fprintf(FILE* stream, const char* format, ...)`
-formatted String을 받아 stream에 출력하는 함수. 
-##### 출력 성공 시 출력된 문자의 byte 수를, 실패 시 음수를 반환.
-#### `int sprintf(char* str, const char* format, ...)`
-formatted String을 받아 str에 저장하는 함수. str 끝에 자동으로 **\0** 을 붙여주기 때문에 1칸의 여유 공간을 둬야 한다.
-##### 저장 성공 시 저장된 문자열의 byte 수(\0 제외)를, 실패 시 음수를 반환.
+stdin으로부터 input을 받아 formatted input 인자에 입력하는 함수. 
+> scanf 계열의 가장 큰 문제 중 하나는 연속적으로 scanf를 할때 **\n까지 받아들인다는 점**이다. 예를 들어 2번의 scanf 가 있을 때 첫 scanf 에서 2 + enter(= \n)로 값을 입력할 경우 다음 scanf는 buffer에 남은 \n을 입력값으로 보고 작업을 마치게 된다. 이 문제를 해결하기 위해 scanf 사이에 무의미한 **getchar()** 를 끼워 넣거나, **%*c**를 formatted input에 추가하여 \n을 뽑아가는 방식이 있다. 
+##### 입력 성공 시 성공적으로 입력받은 인자의 수를, 실패 시 EOF를 반환.
+#### `int fscanf(FILE* stream, const char* format, ...)`
+stream으로부터 input을 받아 formatted input 인자에 입력하는 함수. 
+##### 입력 성공 시 성공적으로 입력받은 인자의 수를, 실패 시 EOF를 반환.
+#### `int sscanf(char* str, const char* format, ...)`
+str로부터 input을 받아 formatted input 인자에 입력하는 함수. 
+> 특이점으로는 sscanf를 통해 숫자 문자열을 정수로 바꿀 수 있다(sscanf(intStr, "%d", &i)). 특히 정수 뿐만 아니라 16진수, 소수 등으로도 바꿀 수 있어 atoi에 비해 범용성이 뛰어나다.
+##### 입력 성공 시 성공적으로 입력받은 인자의 수를, 실패 시 EOF를 반환.
 
 ---------------------------------------
 ### FILE read/write Functions
