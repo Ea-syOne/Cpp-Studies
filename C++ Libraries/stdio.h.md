@@ -75,6 +75,8 @@ FILE object 내의 error flag가 설정되어 있는지를 반환하는 함수.
 ##### 설정되어 있다면 0이 아닌 값을, 그렇지 않으면 0을 반환.
 #### `void clearerr(FILE* stream)`
 stream 내의 EOF 표시자와 error 표시자를 모두 초기화한다. 즉, 사전에 error가 발생했더라도 clearerr(stream)을 호출하면 error가 잡히지 않는다.
+#### `void perror(const char* str)`
+stderr 내의 error message를 출력하는 함수. 이 때 error message 앞부분에 str에 해당하는 문자열을 우선 출력한다.
 
 --------------------------------------
 ### FILE pos Functions
@@ -98,6 +100,48 @@ FILE stream의 pos 값을 file 시작 지점으로 옮기는 함수.
 
 ----------------------------------------
 ### FILE get/put function
+#### `int getc(FILE* stream)`
+FILE stream의 pos가 가리키는 위치에서 character 하나를 가져오는 매크로.<br>
+가져온 character는 int 값으로 반환되며, stream의 pos는 다음 칸으로 넘어간다.
+> 매크로로 구현되어 있기 때문에 속도가 빠르지만, stream을 한 번 이상 evaluate할 수 있어 인자에 side effect가 있으면 안된다.
+##### char를 가져오는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `int fgetc(FILE* stream)`
+getc와 동일한 동작을 하는 함수.
+> 매크로가 아닌 함수기 때문에 getc보다 느리지만 side effect 제약이 없다. 
+##### char를 가져오는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `int getchar()`
+stdin에서 getc와 동일한 동작을 하는 함수. 
+##### char를 가져오는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `char* gets(char* str)`
+stdin에서 문자열을 입력 받아 str 위치에 저장하는 함수. '\n'를 같이 받아오지 않기 때문에 buffer에 \n이 남아있게 된다.
+> 불러올 때 길이 제한이 없어, 100 크기의 char 배열에 10000 크기의 데이터를 입력받으면 버퍼 오버플로우가 발생한다.
+##### str에 저장하는 데 성공 시 str 값을, 실패 시 NULL를 반환.
+#### `char* fgets(char* str, int n, FILE* stream)`
+stream에서 길이 n만큼의 문자열을 입력 받아 str 위치에 저장하는 함수. '\n'까지 받아와 scanf 같은 문제가 발생하지 않는다.<br>
+> \n에 의해서만 입력이 끝나기 때문에 띄어쓰기도 받을 수 있으며, '\n'을 들고가 scanf 같은 문제가 발생하지 않는다. 
+> 읽어들이는 문자 수는 n-1개로, 마지막에 \0을 넣어야 하기 때문.
+##### str에 저장하는 데 성공 시 str 값을, 실패 시 NULL를 반환.
+#### `int ungetc(int char, FILE* stream)`
+FILE stream에 char를 다시 집어넣는 함수. 넣은 이후 pos는 이전 위치를 가리키게 된다<br>
+##### char를 집어 넣는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+
+#### `int putc(int char, FILE* stream)`
+FILE stream의 pos가 가리키는 위치에 char를 집어넣는 매크로.<br>
+> 역시 매크로로 구현되어 있기 때문에 속도가 빠르지만, stream을 한 번 이상 evaluate할 수 있어 인자에 side effect가 있으면 안된다.
+##### char를 출력하는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `int fputc(int char, FILE* stream)`
+putc와 동일한 동작을 하는 함수.
+> 매크로가 아닌 함수기 때문에 putc보다 느리지만 side effect 제약이 없다. 
+##### char를 출력하는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `int putchar(int char)`
+stdin에서 putc와 동일한 동작을 하는 함수. 
+##### char를 출력하는 데 성공 시 해당 값을, 실패 시 EOF를 반환.
+#### `int puts(const char* str)`
+stdout에 str 값을 출력하는 함수. 출력 이후 자동으로 '\n'까지 쓰며, str이 \0에 도달할 때까지 출력하게 된다.
+##### str을 출력하는 데 성공 시 음이 아닌 값을, 실패 시 EOF를 반환.
+#### `int fputs(const char* str, FILE* stream)`
+str이 가리키는 문자열을 stream pos 위치에 저장하는 함수. \0이 나올 때까지 복사한다<br>
+##### str을 출력하는 데 성공 시 음이 아닌 값을, 실패 시 EOF를 반환.
 
 ----------------------------------------
 ### FILE print/scan function
@@ -129,6 +173,7 @@ formatted output을 받아 str에 저장하는 함수. str 끝에 자동으로 *
 #### `int scanf(const char* format, ...)`
 stdin으로부터 input을 받아 formatted input 인자에 입력하는 함수. 
 > scanf 계열의 가장 큰 문제 중 하나는 연속적으로 scanf를 할때 **\n까지 받아들인다는 점**이다. 예를 들어 2번의 scanf 가 있을 때 첫 scanf 에서 2 + enter(= \n)로 값을 입력할 경우 다음 scanf는 buffer에 남은 \n을 입력값으로 보고 작업을 마치게 된다. 이 문제를 해결하기 위해 scanf 사이에 무의미한 **getchar()** 를 끼워 넣거나, **%*c**를 formatted input에 추가하여 \n을 뽑아가는 방식이 있다. 
+> 또한 '\n' 뿐만 아니라 '\t' 또는 ' '에 의해 입력이 끝나기 때문에 띄어쓰기가 있는 문자열은 입력 받지 못한다.
 ##### 입력 성공 시 성공적으로 입력받은 인자의 수를, 실패 시 EOF를 반환.
 #### `int fscanf(FILE* stream, const char* format, ...)`
 stream으로부터 input을 받아 formatted input 인자에 입력하는 함수. 
