@@ -1,63 +1,43 @@
 ## types
 #### vector
 c++ 에서의 Array를 대체하는 class. 배열의 크기 변화에 따라 공간 재할당을 자동으로 수행한다.
-#### Constructor
-
+#### Constructors
+*  vector<T> v: T type 원소를 갖는 빈 벡터 v 생성.
+*  vector<T> v(nitem, val): T type 값 val이 nitem개 담긴 벡터 생성.
+*  vector<T> v(iter1, iter2): T type vector의 iter1부터 iter2까지 값을 담은 벡터 생성.
+*  vector<T> v(vec): vec을 복사한 벡터 생성.
+#### Operators
+*  v1 = v2: v1에 v2 값을 copy. 이후 v2 값이 바뀌어도 v1엔 반영되지 않음. 
+*  v1 > v2: v1과 v2의 크기를 비교하는 함수. 우선 각 벡터의 size를 비교하고, size가 같다면 0번째 value의 크기를 비교. 0번째 value도 같다면 다음 value 비교.
+*  v[i]: v의 i번째 원소에 접근. 매크로라 속도가 빠르지만 범위 체크를 하진 않아 주의해야 한다.
 #### Functions
-##### length(): 문자열의 길이를 반환.
-##### empty(): 문자열이 비었는지를 반환. 비면 0, 아니면 1.
-##### clear(): 문자열을 비우는 함수.
-##### operator[], at(i): s[i] 또는 at(i)로 i번째 index에 접근. at(i)는 []와 달리 범위를 벗어나는지 확인하고, 그만큼 더 느림.
-##### back(), front(): 문자열의 가장 뒤, 앞 문자를 반환.
-##### operator +=: 문자열 뒤에 새 문자열을 이어 붙이는 operator. 
-##### append: append 역시 문자열 뒤에 새 문자열을 이어 붙이는 함수로, +=와 달리 추가 옵션들이 존재한다.
-*  dest.append(src): dest 뒤에 src를 이어 붙임.
-*  dest.append(src, len): dest 뒤에 src부터 len만큼 이어붙임. 
-*  dest.append(src, pos, len): dest 뒤에 src의 pos부터 len만큼의 substring을 이어 붙임.
-*  dest.append(size, c): dest 뒤에 char c를 size번 이어 붙임.
-*  dest.append(iter1, iter2): dest 뒤에 iter1부터 iter2까지의 string을 이어 붙임. 
-##### push_back(c): 문자열 끝에 문자 c를 이어 붙이는 함수.
-##### pop_back(): 문자열 끝의 문자를 제거하는 함수.
-##### assign: 문자열의 내용을 str로 설정하는 함수. 기존 내용은 사라짐.
-> append와 동일한 5가지 option이 존재.
-##### insert: 문자열에 내용을 삽입하는 함수로, 추가 옵션들이 존재한다.
-*  dest.insert(pos, src): dest의 pos 위치에 src를 삽입.
-*  dest.insert(pos, src, src_len): dest의 pos 위치에 src의 src_len만큼의 substring을 삽입하는 함수.
-*  dest.insert(pos, src, src_pos, src_len): dest의 pos 위치에 src의 src_pos부터 src_len만큼의 substring을 삽입하는 함수.
-*  dest.insert(pos, size, c): dest의 pos 위치에 c를 size번 삽입.
-*  dest.insert(iter, size, c): dest의 iter 위치에 c를 size번 삽입.
-> insert(iter, c)는 문자를 삽입한 iterator 값을 반환한다. 
-*  dest.insert(d_iter, s_iter1, s_iter2): d_iter에 s_iter1~s_iter2의 문자열을 삽입.
-##### erase: 문자열 내용을 지우는 함수로, 3가지 옵션이 존재한다.
-*  dest.erase(pos, n): dest의 pos부터 n개의 문자를 삭제.
-*  dest.erase(iter): dest의 iter 위치의 문자 삭제.
-*  dest.erase(iter1, iter2): dest의 iter1부터 iter2까지의 문자열 삭제.
-##### replace: 문자열 내용을 교체하는 함수.
-*  dest.replace(pos, len, src): dest의 pos부터 len만큼을 src로 교체.
-*  dest.replace(pos, len, src, src_pos, src_len): dest의 pos부터 len만큼 src의 pos부터 len만큼의 문자열로 교체.
-*  dest.replace(pos, len, size, c): dest의 pos부터 len만큼을 문자 c size번으로 교체.
-*  위와 같은 옵션들을 iter로 대체하여 사용 가능.
-##### .swap(target): dest와 target의 문자열을 교환하는 함수.
-##### c_str: dest의 char 문자열 형태를 반환하는 함수.
-##### data: dest의 문자열 형태의 pointer를 반환하는 함수.
-##### copy(c_arr, len, [pos]): dest의 pos부터 len만큼을 c_arr에 복사하는 함수.
-##### find: string 문자열 안에서 특정 keyword 존재 여부를 확인하는 함수. 가장 첫번째 위치만을 반환.
-*  dest.find(src): dest에 src와 동일한 문자열이 존재하는지 확인하는 함수. 존재하면 그 위치를, 없다면 npos를 반환.
-*  dest.find(src, pos, len): dest의 pos 이후부터 src의 len만큼의 문자열이 존재하는지를 확인 후 해당 position 또는 npos를 반환.
-##### rfind: string 문자열 뒤에서부터 keyword 존재 여부를 확인하는 함수. 나머지는 find와 동일.
-##### find_first/last_of(str, [pos=start/end]): 문자열의 pos부터 str에 속하는 첫/마지막 character를 찾는 함수.
-##### find_first/last_not_of(str, [pos=start/end]): 문자열의 pos부터 str에 속하지 않는 첫/마지막 character를 찾는 함수.
-##### substr(start, [end]): dest의 start부터 end까지의 문자열을 가져오는 함수.
-##### compare: 현재 string과 인자로 받는 string을 비교한 결과를 출력하는 함수.
-*  dest.compare([pos], [len], str): dest의 pos부터 len만큼의 문자열을 str과 비교.
-*  dest.compare(pos, len, str, pos_str, str_len): dest의 pos부터 len만큼과 str의 pos_str부터 len_str만큼의 문자열을 비교.
-##### operators
-*  head + tail: tail을 head 뒤에 append함.
-*  s1 (relational_op) s2: 두 string의 관계를 출력. >, <, != 등. 사전 순에 따라 계산.
-
-------------------------------------------
-
-## Macros
-##### npos: size_t 값의 최대 값. 
+##### size(): 벡터의 원소 개수를 반환. 
+##### capacity(): 벡터의 용량을 반환. 
+##### resize(size, [init_val=0]): 벡터의 size를 재조정. 만약 이전보다 커질 경우 해당 vector 값은 init_val로 초기화.
+##### reserve(capacity): 벡터의 용량을 capacity로 재조정.
+##### empty(): 벡터가 비었는지를 확인하는 함수.
+##### back(), front(): 벡터의 가장 뒤, 앞 문자를 반환.
+##### at(i): i번째 vector 값을 가져오는 함수. 
+##### assign: 벡터의 내용을 설정하는 함수. 기존 내용은 사라짐.
+*  v.assign(n, val): v를 val n개의 vector로 설정.
+*  v.assign(iter1, iter2): v를 iter1부터 iter2까지의 vector로 설정.
+*  v.assign(T* arr, T* arr_k): v를 T* arr부터 arr_k까지의 값으로 설정. 
+##### push_back(val): 벡터 끝에 값 val을 이어 붙이는 함수.
+##### pop_back(): 벡터 끝의 값을 제거하는 함수.
+##### insert: 벡터에 값을 삽입하는 함수로, 추가 옵션들이 존재한다.
+*  v.insert(iter, val): v의 iter 위치에 val을 삽입.
+*  v.insert(iter, n, val): v의 iter 위치에 val을 n번 삽입.
+*  v.insert(iter, iter_val, iter_val_end): v의 iter 위치에 iter_val부터 iter_val_end까지 삽입.
+*  v.insert(iter, T* arr, T* arr_k): v의 iter 위치에 arr부터 arr_k까지를 삽입.
+##### emplace: 벡터에 값을 삽입하는 함수로, insert와 삽입 하는 방식에 차이가 있다. 
+*  옵션의 경우 insert 참조.
+*  push_back(val)을 대체하는 emplace_back(val) 또한 존재한다.
+> v.emplace의 경우 인자로 받은 값을 이용해 새 임시 객체를 생성 후, 임시 객체를 v에 삽입하는 방식. 따라서 vector 원소와 인자가 연동되어 의도치 않은 값 수정을 방지할 수 있다.
+##### erase: 벡터 원소를 지우는 함수.
+*  v.erase(iter): v의 iter 위치의 원소를 삭제.
+*  v.erase(iter1, iter2): v의 iter1부터 iter2까지의 원소 삭제.
+##### .swap(target): dest와 target의 벡터 값을 교환하는 함수.
+##### clear(): vector 값을 비우는 함수. 
+##### flip(): vector가 vector<bool>일 때만 가능한 함수로, vector 내의 모든 bool 값을 뒤집는 함수.
 
 ------------------------------------------
