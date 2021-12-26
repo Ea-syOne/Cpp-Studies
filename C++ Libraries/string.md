@@ -52,6 +52,7 @@ c++ 에서의 문자열을 대체하는 class.
 ##### rfind: string 문자열 뒤에서부터 keyword 존재 여부를 확인하는 함수. 나머지는 find와 동일.
 ##### find_first/last_of(str, [pos=start/end]): 문자열의 pos부터 str에 속하는 첫/마지막 character를 찾는 함수.
 ##### find_first/last_not_of(str, [pos=start/end]): 문자열의 pos부터 str에 속하지 않는 첫/마지막 character를 찾는 함수.
+> find 계열 함수들은 탐색하지 못했을 경우 npos 값을 반환.
 ##### substr(start, [end]): dest의 start부터 end까지의 문자열을 가져오는 함수.
 ##### compare: 현재 string과 인자로 받는 string을 비교한 결과를 출력하는 함수.
 *  dest.compare([pos], [len], str): dest의 pos부터 len만큼의 문자열을 str과 비교.
