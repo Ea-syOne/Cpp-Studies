@@ -1,6 +1,13 @@
 ## types
-#### string
+### string
 c++ 에서의 문자열을 대체하는 class.
+#### Constructor
+*  string s1: 빈 string 생성.
+*  string s1(str): str 값으로 초기화된 string 생성.
+*  string s1(str, pos, [len]): str의 pos부터 len만큼의 문자열로 초기화된 string 생성.
+*  string s1(c_string, len): char 배열의 len만큼 문자열로 초기화된 string 생성.
+*  string s1(size, c): 문자 c size개로 이루어진 문자열로 초기화된 string 생성.
+*  string s1(iter_start, iter_end): iter_start ~ end까지의 문자열로 초기화된 string 생성.
 #### Functions
 ##### length(): 문자열의 길이를 반환.
 ##### empty(): 문자열이 비었는지를 반환. 비면 0, 아니면 1.
@@ -59,3 +66,10 @@ c++ 에서의 문자열을 대체하는 class.
 ##### npos: size_t 값의 최대 값. 
 
 ------------------------------------------
+
+## Functions
+#### `int stoi(const string& str, size_t* idx, int base)`
+base진법으로 표현된 str을 정수로 변환한 값을 반환하는 함수. 변환 결과 int 크기를 idx가 가리키는 위치에 저장.
+>  integer 외에도 long int(stol), unsigned int(stoul), long long(stoll), unsigned long lon(stoull), float(stof), double(stod), long double(stold)로 변환하는 함수가 지원된다.
+#### `string to_string(val)`
+val을 string으로 변환한 값을 반환하는 함수. val의 경우 int, long, long long, float, double, long double이 지원됨. 
