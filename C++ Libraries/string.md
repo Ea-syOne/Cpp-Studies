@@ -34,7 +34,7 @@ c++ 에서의 문자열을 대체하는 class.
 > insert(iter, c)는 문자를 삽입한 iterator 값을 반환한다. 
 *  dest.insert(d_iter, s_iter1, s_iter2): d_iter에 s_iter1~s_iter2의 문자열을 삽입.
 ##### erase: 문자열 내용을 지우는 함수로, 3가지 옵션이 존재한다.
-*  dest.erase(pos, n): dest의 pos부터 n개의 문자를 삭제.
+*  dest.erase(pos, n): dest의 pos부터 n개의 문자를 삭제. n 값을 주지 않으면 pos 이후 모두 삭제.
 *  dest.erase(iter): dest의 iter 위치의 문자 삭제.
 *  dest.erase(iter1, iter2): dest의 iter1부터 iter2까지의 문자열 삭제.
 ##### replace: 문자열 내용을 교체하는 함수.
