@@ -78,6 +78,7 @@ command를 실행할 호스트 환경에 전달하고, 해당 command가 완료�
 #### `void* bsearch(const void* key, const void* base, size_t nitems, size_t size, int(*compar)(const void*, const void*))`
 base부터 시작해 size 크기의 nitems를 가진 배열에서 key와 일치하는 값을 compar 함수를 이용해 binary search한 결과를 가져오는 함수. 
 > binary search이기 때문에 선형 탐색보다 더 빠르게 값을 찾을 수 있지만, 반드시 정렬된 배열을 사용해야 함.
+> vector와 같은 C++ container에서 bsearch를 수행할 경우 base에는 그대로 vector[start_idx]의 주소를 넣어주면 된다. 
 ##### 정상적으로 key 값을 찾으면 해당 pointer 값을, 아니면 NULL을 반환.
 #### `void qsort(void* base, size_t nitems, size_t size, int(*compar)(const void*, const void*))`
 base부터 시작해 size 크기의 nitems를 가진 배열을 compar에 기반하여 정렬하는 함수. 
